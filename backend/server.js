@@ -10,16 +10,23 @@ app.use(cors());
 app.use(express.json());
 
 // Database connection
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('MongoDB connection error:', err));
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/memebuilder', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    console.log('Connected to MongoDB');
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+  }
+};
+connectDB();
 
 // Routes
 app.use('/api/domains', require('./routes/domains'));
 app.use('/api/deploy', require('./routes/deploy'));
-app.use('/api/templates', require('./routes/templates'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
