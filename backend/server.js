@@ -9,26 +9,31 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Database connection
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/memebuilder', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
-    console.log('Connected to MongoDB');
-  } catch (err) {
-    console.error('MongoDB connection error:', err);
-    process.exit(1);
-  }
+// Database config
+const dbConfig = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 };
-connectDB();
 
-// Routes
-app.use('/api/domains', require('./routes/domains'));
-app.use('/api/deploy', require('./routes/deploy'));
+// Server startup
+const startServer = async () => {
+  try {
+    await mongoose.connect(
+      process.env.MONGODB_URI || 'mongodb://localhost:27017/memebuilder',
+      dbConfig
+    );
+    console.log('MongoDB connected successfully');
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+    // Routes
+    app.use('/api/domains', require('./routes/domains'));
+    app.use('/api/deploy', require('./routes/deploy'));
+
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('Server startup failed:', err);
+};
+
+startServer();
